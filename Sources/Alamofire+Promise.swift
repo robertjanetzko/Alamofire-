@@ -72,20 +72,6 @@ extension Alamofire.DataRequest {
         }
     }
 
-    /// Adds a handler to be called once the request has finished.
-    public func responsePropertyList(queue: DispatchQueue? = nil, options: PropertyListSerialization.ReadOptions = PropertyListSerialization.ReadOptions()) -> Promise<(plist: Any, response: PMKAlamofireDataResponse)> {
-        return Promise { seal in
-            responsePropertyList(queue: queue, options: options) { response in
-                switch response.result {
-                case .success(let value):
-                    seal.fulfill((value, PMKAlamofireDataResponse(response)))
-                case .failure(let error):
-                    seal.reject(error)
-                }
-            }
-        }
-    }
-
 #if swift(>=3.2)
     /**
      Returns a Promise for a Decodable
@@ -138,7 +124,7 @@ extension Alamofire.DataRequest {
 }
 
 extension Alamofire.DownloadRequest {
-    public func response(_: PMKNamespacer, queue: DispatchQueue? = nil) -> Promise<DefaultDownloadResponse> {
+    public func response(_: PMKNamespacer, queue: DispatchQueue? = nil) -> Promise<DownloadResponse<URL?>> {
         return Promise { seal in
             response(queue: queue) { response in
                 if let error = response.error {
@@ -172,7 +158,6 @@ public struct PMKAlamofireDataResponse {
         request = rawrsp.request
         response = rawrsp.response
         data = rawrsp.data
-        timeline = rawrsp.timeline
     }
 
     /// The URL request sent to the server.
@@ -183,7 +168,4 @@ public struct PMKAlamofireDataResponse {
 
     /// The data returned by the server.
     public let data: Data?
-
-    /// The timeline of the complete lifecycle of the request.
-    public let timeline: Timeline
 }
